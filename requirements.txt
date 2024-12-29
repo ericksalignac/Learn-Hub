@@ -1,0 +1,16 @@
+ollama
+gradio
+pdfplumber 
+langchain
+langchain-core
+langchain-ollama
+langchain_community
+langchain_text_splitters
+unstructured
+unstructured[all-docs]
+onnx==1.16.1
+protobuf==3.20.3
+chromadb==0.4.22
+numpy==1.23.5
+Pillow
+numpy

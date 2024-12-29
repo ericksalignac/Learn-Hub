@@ -1,0 +1,21 @@
+Melhorias:
+
+Mostrar tempo gasto na geração da resposta ✅
+
+Adicionar memória na conversação sem necessáriamente fazer outra consulta de rag
+
+Adicionar busca em mais de um documento e direcionar a pesquisa
+
+Adicionar opção de compreender somente texto ou textos e imagens
+
+Adicionar transcrição de voz e leitura com a voz do jarvis  
+
+Adicionar capacidade de fazer buscas na internet 
+
+Adicionar feature de criar novos chats
+
+Adicionar memória entre os chats?
+
+############################################################
+
+Disparar funções como marcar eventos no calendário ou ler/mandar mensagens no whatsapp
