@@ -2,7 +2,13 @@ Melhorias:
 
 Mostrar tempo gasto na geração da resposta ✅
 
-Adicionar memória na conversação sem necessáriamente fazer outra consulta de rag
+Adicionar memória na conversação sem necessáriamente fazer outra consulta de rag ? 
+
+Mostrar chunks extraídos
+
+Mostrar etapas do processamento como "recuperando contexto", "gerando resposta"...
+
+Adicionar streaming output in real-time ✅
 
 Adicionar busca em mais de um documento e direcionar a pesquisa
 
@@ -15,6 +21,8 @@ Adicionar capacidade de fazer buscas na internet
 Adicionar feature de criar novos chats
 
 Adicionar memória entre os chats?
+
+testar usar outra versão do unstructured
 
 ############################################################
 
