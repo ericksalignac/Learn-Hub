@@ -106,7 +106,7 @@ def create_vector_db(file_upload) -> Chroma:
     return vector_db
 
 
-def process_question(question: str, vector_db: Chroma, selected_model: str) -> str:
+def process_question_stream(question: str, vector_db: Chroma, selected_model: str) -> str:
     """
     Process a user question using the vector database and selected language model.
 
@@ -161,11 +161,9 @@ def process_question(question: str, vector_db: Chroma, selected_model: str) -> s
         | StrOutputParser()
     )
 
-    response = chain.invoke(question)
-    final_time = time.time()
-    time_spent = final_time - inicial_time
-    logger.info("Question processed and response generated")
-    return response, time_spent
+    # Stream response incrementally
+    for partial_response in chain.stream(question):
+        yield partial_response
 
 
 @st.cache_data
@@ -321,48 +319,54 @@ def main() -> None:
     with col2:
         message_container = st.container(height=500, border=True)
 
-        # Display chat history
-        for i, message in enumerate(st.session_state["messages"]):
+        # Exibir histórico de mensagens
+        for message in st.session_state["messages"]:
             avatar = "🤖" if message["role"] == "assistant" else "😎"
             with message_container.chat_message(message["role"], avatar=avatar):
                 st.markdown(message["content"])
 
-        # Chat input and processing
+        # Entrada de texto para perguntas
         if prompt := st.chat_input("Enter a prompt here...", key="chat_input"):
             try:
-                # Add user message to chat
+                # Adicionar mensagem do usuário no histórico
                 st.session_state["messages"].append({"role": "user", "content": prompt})
                 with message_container.chat_message("user", avatar="😎"):
                     st.markdown(prompt)
 
-                # Process and display assistant response
+                # Exibir resposta do assistente em tempo real
                 with message_container.chat_message("assistente", avatar="🤖"):
-                    with st.spinner(":green[processando...]"):
+                    placeholder = st.empty()  # Espaço reservado para a resposta
+                    time_placeholder = st.empty()  # Espaço para o tempo total
+                    with st.spinner(":gray[gerando resposta...]"):
                         if st.session_state["vector_db"] is not None:
-                            response, time_spent = process_question(
+                            response_text = ""  # Resposta completa
+                            start_time = time.time()  # Tempo inicial
+                            
+                            # Streaming da resposta
+                            for partial_response in process_question_stream(
                                 prompt, st.session_state["vector_db"], selected_model
-                            )
-                            st.markdown(response)
-                            st.markdown(
-                                f"<p style='font-size:12px; color:gray; margin-top:-10px;'>{round(time_spent, 2)}s</p>",
+                            ):
+                                response_text += partial_response
+                                placeholder.markdown(response_text)
+                            
+                            end_time = time.time()  # Tempo final
+                            time_spent = round(end_time - start_time, 2)
+
+                            # Exibir o tempo total
+                            time_placeholder.markdown(
+                                f"<p style='font-size:12px; color:gray; margin-top:-10px;'>{time_spent}s</p>",
                                 unsafe_allow_html=True
                             )
                         else:
                             st.warning("Por favor, faça o upload do PDF primeiro.")
 
-                # Add assistant response to chat history
+                # Adicionar resposta do assistente no histórico
                 if st.session_state["vector_db"] is not None:
                     st.session_state["messages"].append(
-                        {"role": "assistant", "content": response}
+                        {"role": "assistant", "content": response_text}
                     )
-
             except Exception as e:
-                st.error(e, icon="⛔️")
-                logger.error(f"Error processing prompt: {e}")
-        else:
-            if st.session_state["vector_db"] is None:
-                st.warning("Faça upload de um arquivo PDF ou selecione o exemplo para começar o chat...")
-
-
+                st.error(f"Erro: {e}", icon="⛔️")
+                logger.error(f"Erro ao processar: {e}")
 if __name__ == "__main__":
     main()
